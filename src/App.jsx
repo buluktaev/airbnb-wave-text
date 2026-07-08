@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useDialKit, DialRoot } from 'dialkit';
+import { useDialKitController, DialRoot } from 'dialkit';
 import 'dialkit/styles.css';
 import { playWave, exportCode } from './waveText.js';
 import CodeSheet from './CodeSheet.jsx';
@@ -23,7 +23,7 @@ export default function App() {
   }, []);
   const base = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim();
 
-  const p = useDialKit(
+  const dial = useDialKitController(
     'Wave Text',
     {
       text: { type: 'text', default: "I'm on a seafood diet. I see food and I eat it.", placeholder: 'Text' },
@@ -39,11 +39,14 @@ export default function App() {
         size: [16, 10, 48, 1],
         weight: { type: 'select', options: ['400', '500', '600', '700'], default: '600' },
       },
+      reset: { type: 'action', label: 'Reset to defaults' },
     },
     {
       persist: { key: 'wave-text', presets: true },
+      onAction: (path) => { if (path === 'reset') dial.resetValues(); },
     },
   );
+  const p = dial.values;
 
   const params = useMemo(() => ({
     text: p.text,

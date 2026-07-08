@@ -27,7 +27,7 @@
 
 * { box-sizing: border-box; }
 
-html, body { margin: 0; height: 100%; }
+html, body { margin: 0; height: 100%; overscroll-behavior-y: none; }
 
 /* Thin, unobtrusive scrollbar everywhere (rauno: scrollbar-width + scrollbar-color) */
 html { scrollbar-width: thin; scrollbar-color: rgba(128, 128, 128, 0.5) transparent; }
@@ -58,11 +58,24 @@ body {
   right: 24px;
   bottom: 24px;
   width: var(--dock-w);
-  overflow: hidden;
+  overflow-y: auto;
+  overscroll-behavior: none; /* "contain" still bounces locally; "none" kills the rubber-band that flashes the page through on overscroll */
+  scrollbar-width: none; /* scrolls, just no visible scrollbar */
   background: var(--dock-bg);
   border: 1px solid var(--border);
   border-radius: 16px;
 }
+/* DialKit's own CSS caps .dialkit-root at max-height:100% (850px here) for inline
+   mode, but its real content is taller and just overflows past that cap (default
+   overflow:visible) — so any sibling/::after we add lands right after the
+   *capped* 850px, not the *actual* end of content, and gets swallowed by the
+   overflow. Lift the cap so it sizes to its real content instead, so .dial-dock's
+   scrollable height matches reality. */
+.dial-dock .dialkit-root { max-height: none; }
+/* padding-bottom on a scroll container is ignored by browsers for overflowed
+   content (only padding-top is respected) — a real spacer box is the workaround. */
+.dial-dock::after { content: ''; display: block; height: 16px; }
+.dial-dock::-webkit-scrollbar { display: none; } /* Safari ignores scrollbar-width */
 @media (max-width: 640px) {
   .dial-dock { display: none; }
 }
