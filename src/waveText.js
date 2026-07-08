@@ -17,16 +17,16 @@ function mixColor(a, b, t) {
   return `rgb(${r}, ${g}, ${bl})`;
 }
 
-// Движок wave-text эффекта Airbnb. Каждый символ — свой span; на нём два
-// WAAPI-трека (цвет и масштаб), стартующих с задержкой initialDelay + stagger*i.
-// Значения по умолчанию и структура кейфреймов взяты 1:1 из реального
-// element.animate() на airbnb.ru (реверс через подмену Element.prototype.animate).
+// Engine for Airbnb's wave-text effect. Each character is its own span; it carries
+// two WAAPI tracks (color and scale), both starting after initialDelay + stagger*i.
+// Default values and keyframe structure are lifted 1:1 from the real
+// element.animate() calls on airbnb.ru (reverse-engineered by patching Element.prototype.animate).
 
-// Сэмплим пружину Motion (та же, что рисует превью в spring-editor'е DialKit),
-// чтобы масштабный хвост совпадал с редактором и был запекаем в экспорт.
+// Sample the Motion spring (the same one that draws the preview in DialKit's
+// spring editor) so the scale tail matches the editor and can be baked into the export.
 export function sampleSpring(springOpts, from, to, fps = 60) {
   const opts = { ...springOpts };
-  delete opts.type; // motion spring() принимает visualDuration/bounce или stiffness/damping/mass
+  delete opts.type; // motion spring() takes visualDuration/bounce or stiffness/damping/mass
   const gen = spring({ keyframes: [from, to], ...opts });
   const dt = 1000 / fps;
   const values = [];
@@ -47,9 +47,9 @@ export function sampleSpring(springOpts, from, to, fps = 60) {
 
 const RAMP_STEPS = 24;
 
-// Цвет: base → accent, форма подъёма — выбранная именованная кривая (сэмплируется в
-// точки, отсюда одинаковая обработка что для обычных кривых, что для bounce/elastic) →
-// держим (flash) → base (colorTail). Всё до старта — base.
+// Color: base → accent, the rise shape is the selected named curve (sampled into
+// points, so regular curves and bounce/elastic get the same handling) →
+// hold (flash) → base (colorTail). Everything before the start is base.
 export function buildColorKeyframes(base, accent, ramp, flash, colorTail, easingName) {
   const dur = Math.max(ramp + flash + colorTail, 1);
   const rampT = sampleEasing(easingName, RAMP_STEPS);
@@ -63,7 +63,7 @@ export function buildColorKeyframes(base, accent, ramp, flash, colorTail, easing
   return { dur, kf };
 }
 
-// Масштаб: 1 → peak по той же именованной кривой → пружинное затухание к 1 (сэмплы Motion).
+// Scale: 1 → peak on the same named curve → spring decay back to 1 (Motion samples).
 export function buildScaleKeyframes(peak, ramp, easingName, springValues, settleMs) {
   const total = Math.max(ramp + settleMs, 1);
   const rampT = sampleEasing(easingName, RAMP_STEPS);
@@ -80,7 +80,7 @@ export function buildScaleKeyframes(peak, ramp, easingName, springValues, settle
   return { dur: total, kf };
 }
 
-// Проигрывает волну на массиве символьных элементов. Возвращает активные Animation'ы.
+// Plays the wave on an array of character elements. Returns the active Animations.
 export function playWave(els, p) {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     els.forEach((el) => { el.style.color = p.base; el.style.transform = 'scale(1)'; });
@@ -98,10 +98,10 @@ export function playWave(els, p) {
   return anims;
 }
 
-// Self-contained vanilla-сниппет под текущие параметры (без зависимостей, без motion).
-// Пружина запекается в массив чисел, поэтому motion в экспортируемом коде не нужен.
-// Триггер не встраивается — экспорт отдаёт голую playWaveText(), вызывающий код
-// сам решает, когда её звать (autoplay/scroll/hover/click — это его интеграция).
+// Self-contained vanilla snippet for the current params (no dependencies, no motion).
+// The spring is baked into a plain number array, so motion isn't needed in the export.
+// No trigger is wired in — the export just exposes a bare playWaveText(); the calling
+// code decides when to call it (autoplay/scroll/hover/click is its own integration).
 export function exportCode(p) {
   const { values, settleMs } = sampleSpring(p.spring, p.peak, 1);
   const rampT = sampleEasing(p.easing, RAMP_STEPS);
@@ -117,8 +117,8 @@ export function exportCode(p) {
 (function () {
   var el = document.getElementById('wave-text');
   var P = ${JSON.stringify(cfg)};
-  var RAMP_COLOR = ${JSON.stringify(rampColor)}; // подъём base→accent по выбранной кривой (easing.dev), уже посчитан
-  var RAMP_SCALE = ${JSON.stringify(rampScale)}; // тот же подъём, для масштаба
+  var RAMP_COLOR = ${JSON.stringify(rampColor)}; // base→accent rise on the chosen curve (easing.dev), precomputed
+  var RAMP_SCALE = ${JSON.stringify(rampScale)}; // the same rise, for scale
   var SPRING = ${JSON.stringify(values)};
   var SETTLE = ${Math.round(settleMs)};
   var text = el.textContent; el.textContent = '';
@@ -166,14 +166,14 @@ export function exportCode(p) {
       el.animate(s.kf, { duration: s.dur, delay: d, fill: 'both' });
     });
   }
-  window.playWaveText = play; // вызывайте сами: сразу, по скроллу, hover, click — на ваше усмотрение
-  // Примеры:
-  // el.addEventListener('mouseenter', play);         // по наведению
-  // el.addEventListener('click', play);               // по клику
-  // new IntersectionObserver(function (es) {           // при появлении на экране
+  window.playWaveText = play; // call it yourself: on load, on scroll, hover, click — your call
+  // Examples:
+  // el.addEventListener('mouseenter', play);         // on hover
+  // el.addEventListener('click', play);               // on click
+  // new IntersectionObserver(function (es) {           // on scroll into view
   //   es.forEach(function (e) { if (e.isIntersecting) play(); });
   // }, { threshold: 0.5 }).observe(el);
-  play(); // по умолчанию — сразу при загрузке
+  play(); // default — right away on load
 })();
 <\/script>`;
 }

@@ -11,9 +11,9 @@ export default function App() {
   const playRef = useRef(() => {});
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  // Тема — из системных настроек. Текст волны в покое красится под неё (--ink
-  // из styles.css: почти чёрный на светлом фоне, почти белый на тёмном),
-  // а не фиксированным хексом — поэтому ручного свотча "Base" тут больше нет.
+  // Theme comes from the OS. The wave text's resting color follows it (--ink
+  // from styles.css: near-black on light, near-white on dark) instead of a
+  // fixed hex — that's why there's no manual "Base" swatch anymore.
   const [, forceThemeUpdate] = useState(0);
   useEffect(() => {
     const mql = window.matchMedia('(prefers-color-scheme: dark)');
@@ -26,7 +26,7 @@ export default function App() {
   const p = useDialKit(
     'Wave Text',
     {
-      text: { type: 'text', default: "I'm on a seafood diet. I see food and I eat it.", placeholder: 'Текст' },
+      text: { type: 'text', default: "I'm on a seafood diet. I see food and I eat it.", placeholder: 'Text' },
       accent: { type: 'color', default: '#178b49' },
       peak: [1.2, 1, 1.6, 0.01],
       stagger: [12, 0, 60, 1],
@@ -61,7 +61,7 @@ export default function App() {
     fontWeight: p.font.weight,
   }), [p.text, p.accent, base, p.peak, p.stagger, p.initialDelay, p.ramp, p.flash, p.colorTail, JSON.stringify(p.spring), p.font.size, p.font.weight]);
 
-  // Разбивка текста на слова→символы. Пробелы — тоже .ch, чтобы индекс волны не рвался.
+  // Split text into words→characters. Spaces are also .ch so the wave index stays continuous.
   const words = useMemo(() => params.text.split(' '), [params.text]);
 
   useEffect(() => {
@@ -69,10 +69,10 @@ export default function App() {
     if (!wave) return;
 
     const els = Array.from(wave.querySelectorAll('.ch'));
-    els.forEach((el) => { el.style.color = params.base; }); // покой = базовый цвет
+    els.forEach((el) => { el.style.color = params.base; }); // resting state = base color
 
-    // Проигрываем сразу — и при монтировании, и при любом изменении параметра.
-    // Кнопка «Animate» просто повторяет тот же прогон по клику.
+    // Play immediately — on mount and on every param change.
+    // The "Animate" button just replays the same run on click.
     let anims = playWave(els, params);
     playRef.current = () => {
       anims.forEach((a) => a.cancel && a.cancel());
@@ -106,7 +106,7 @@ export default function App() {
         <button type="button" className="animate-btn" onClick={() => playRef.current()}>
           Animate
         </button>
-        <button type="button" className="icon-btn" onClick={() => setSheetOpen(true)} aria-label="Показать код">
+        <button type="button" className="icon-btn" onClick={() => setSheetOpen(true)} aria-label="Show code">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="m8 8-4 4 4 4" />
             <path d="m16 8 4 4-4 4" />

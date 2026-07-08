@@ -8,7 +8,7 @@
   --sans: 'Geist', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --dock-w: 300px;
-  --dock-bg: #fafafa; /* фон панели DialKit (--dial-glass-bg), чтобы пустая зона под контентом не просвечивала */
+  --dock-bg: #fafafa; /* DialKit panel bg (--dial-glass-bg), so empty space below its content doesn't show through */
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -29,7 +29,7 @@
 
 html, body { margin: 0; height: 100%; }
 
-/* Тонкий ненавязчивый скроллбар везде (rauno: scrollbar-width + scrollbar-color) */
+/* Thin, unobtrusive scrollbar everywhere (rauno: scrollbar-width + scrollbar-color) */
 html { scrollbar-width: thin; scrollbar-color: rgba(128, 128, 128, 0.5) transparent; }
 
 body {
@@ -47,11 +47,11 @@ body {
   justify-content: center;
   gap: 32px;
   padding: 64px 24px;
-  /* контент не уходит под плавающую панель DialKit справа (24 gap + панель + 24 gap) */
+  /* keep content clear of the floating DialKit panel on the right (24 gap + panel + 24 gap) */
   padding-right: calc(48px + var(--dock-w));
 }
 
-/* Панель DialKit — плавающая справа с отступами 24px сверху/снизу/справа */
+/* DialKit panel — floats on the right with 24px gaps on top/bottom/right */
 .dial-dock {
   position: fixed;
   top: 24px;
@@ -118,7 +118,7 @@ body {
 .icon-btn:active { scale: 0.96; }
 .icon-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* ---- Bottom sheet на vaul (выезд/drag/opacity анимирует сам vaul) ---- */
+/* ---- Bottom sheet on vaul (vaul itself animates slide-in/drag/opacity) ---- */
 .sr-only {
   position: absolute;
   width: 1px; height: 1px;
@@ -134,8 +134,8 @@ body {
   background: rgba(0, 0, 0, 0.4);
   transition: opacity 0.35s ease;
 }
-/* vaul оставляет закрытый шит смонтированным и видимым (его transform в controlled-режиме
-   тут не применяется), поэтому прячем закрытое состояние сами по data-state, что ставит vaul. */
+/* vaul leaves the closed sheet mounted and visible (its transform doesn't apply here
+   in controlled mode), so we hide the closed state ourselves via the data-state vaul sets. */
 .sheet-backdrop[data-state="closed"] { opacity: 0; pointer-events: none; }
 
 .sheet {
@@ -148,14 +148,14 @@ body {
   display: flex;
   flex-direction: column;
   outline: none;
-  background: #161618; /* нейтральный тёмный ~ фон страницы, без синего тона */
+  background: #161618; /* neutral dark ~ page background, no blue tint */
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.35);
   transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
 }
 .sheet[data-state="closed"] { transform: translateY(100%); pointer-events: none; }
-/* на узких экранах 340+340 схлопнули бы шит — уменьшаем отступы */
+/* on narrow screens 340+340 would collapse the sheet — shrink the gaps */
 @media (max-width: 900px) {
   .sheet { left: 16px; right: 16px; }
 }
@@ -203,7 +203,7 @@ body {
   background: #232325;
   border-color: #313133;
 }
-/* растягиваем зону нажатия до 40×40, оставляя видимый размер 34 (принцип min hit area) */
+/* extend the hit area to 40×40 while keeping the visible size at 34 (min hit area principle) */
 .sheet-copy::after,
 .sheet-close::after { content: ""; position: absolute; inset: -3px; }
 .sheet-copy { margin-left: auto; }
@@ -225,7 +225,7 @@ body {
   scrollbar-color: #4a4a4d transparent;
   -webkit-overflow-scrolling: touch;
 }
-/* Чекмарк «скопировано» появляется с мягким pop (scale/opacity/blur) */
+/* The "copied" checkmark appears with a soft pop (scale/opacity/blur) */
 .sheet-check { animation: icon-pop 0.3s cubic-bezier(0.2, 0, 0, 1); }
 @keyframes icon-pop {
   from { opacity: 0; scale: 0.25; filter: blur(4px); }

@@ -1,7 +1,7 @@
-// Канонический набор именованных кривых с https://easing.dev (тот же набор, что на
-// easings.net). Bounce/elastic не выражаются одним cubic-bezier (несколько колебаний),
-// поэтому все 30 считаются по замкнутой формуле в одном формате — единый путь без
-// ветвления на «bezier / не bezier» для остальных 24.
+// Canonical set of named curves from https://easing.dev (same set as easings.net).
+// Bounce/elastic can't be expressed as a single cubic-bezier (multiple oscillations),
+// so all 30 are computed from a closed-form formula in one uniform way — no branching
+// on "bezier vs. not" for the other 24.
 
 const c1 = 1.70158;
 const c2 = c1 * 1.525;
@@ -58,7 +58,7 @@ export const EASINGS = {
 
 export const EASING_NAMES = Object.keys(EASINGS);
 
-// Сэмплирует именованную кривую в steps+1 точек на [0,1] → [0,1] (концы точные).
+// Samples a named curve into steps+1 points over [0,1] → [0,1] (endpoints are exact).
 export function sampleEasing(name, steps = 24) {
   const fn = EASINGS[name] || EASINGS.linear;
   const out = [];
